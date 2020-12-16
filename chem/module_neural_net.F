@@ -409,6 +409,29 @@ contains
         end do
         close(isu)
     end subroutine load_scale_values
+    
+    subroutine load_all_scale_values(filename, scale_values)
+        character(len=*), intent(in) :: filename
+        real(8), allocatable, intent(inout) :: scale_values(:, :)
+        character(len=40) :: row_name
+        integer :: isu, i, num_inputs, scale_parameters
+        isu = 2
+        scale_parameters = 2
+        open(isu, file=filename, access="sequential", form="formatted")
+        read(isu, "(A)")
+        num_inputs = 0
+        do
+            read(isu, '(A)', iostat=stat)
+            if (stat /= 0) exit
+            num_inputs = num_inputs + 1
+        end do
+        rewind(isu)
+        allocate(scale_values(num_inputs, scale_parameters))
+        do i=1, num_inputs
+            read(isu, *) row_name, scale_values(i, 1), scale_values(i, 2)
+        end do
+        close(isu)
+    end subroutine load_all_scale_values
 
 
     subroutine standard_scaler_inverse_transform(input_data, scale_values, transformed_data)
